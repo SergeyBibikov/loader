@@ -17,10 +17,10 @@ struct Request {
     domain: String,
     port: String,
     method: String,
-    reqs_per_second: usize,
     max_reqs_per_conn:usize,
     headers: String,    
     path_to_body: String,
+    thread_num: usize,
 }
 
 
@@ -35,8 +35,8 @@ fn init() -> Result<Request>{
     let temp = fs::read(file.next().unwrap()).unwrap();
     let data_to_serialize: &str = str::from_utf8(&temp).unwrap();
     let req: Request = serde_json::from_str(data_to_serialize)?;
-    println!("Load: {} rps\nMethod: {}\nMax_rpc: {}\nLoadSubject: {}://{}:{}/{}\nBody_path: {}",
-             req.reqs_per_second,
+    println!("Threads: {}\nMethod: {}\nMax_rpc: {}\nLoadSubject: {}://{}:{}/{}\nBody_path: {}",
+             req.thread_num,
              req.method,
              req.max_reqs_per_conn,
              req.protocol,

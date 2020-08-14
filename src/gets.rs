@@ -4,25 +4,25 @@ use std::net::TcpStream;
 use std::string::String;
 
 
-pub fn get_req(path: &String, domain: &String, port: &String, headers: &String, reqs:&usize, reqs_per_connection: &usize){
-    let connections: usize = *reqs/(*reqs_per_connection); 
+pub fn get_req(path: &String, domain: &String, port: &String, headers: &String, reqs_per_connection: &usize){
     let temp = create_get_req(path, domain, headers);
     let request = temp.as_bytes();
-    for _ in 0..connections{
-        let mut connection = TcpStream::connect(format!("{}:{}", domain, port)).unwrap();        
+    let dom_port = format!("{}:{}",domain,port);
+    loop{
+        let mut connection = TcpStream::connect(&dom_port).unwrap();        
         for _ in 0..*reqs_per_connection{                
-                connection.write(request).unwrap();
+            connection.write(request).unwrap();
         }
     }
 }   
 
-pub fn tls_get_req(path: &String, domain: &String, port: &String, headers: &String, reqs:&usize, reqs_per_connection: &usize){
-    let connections: usize = *reqs/(*reqs_per_connection);
+pub fn tls_get_req(path: &String, domain: &String, port: &String, headers: &String, reqs_per_connection: &usize){
     let connector = TlsConnector::new().unwrap();
     let temp = create_get_req(path, domain, headers);
     let request = temp.as_bytes();
-    for _ in 0..connections{
-        let tcp_stream = TcpStream::connect(format!("{}:{}",domain,port)).unwrap();
+    let dom_port = format!("{}:{}",domain,port);
+    loop{
+        let tcp_stream = TcpStream::connect(&dom_port).unwrap();
         let mut tls_stream = connector.connect(&domain, tcp_stream).unwrap();
         for _ in 0..*reqs_per_connection{  
             tls_stream.write(request).unwrap();
